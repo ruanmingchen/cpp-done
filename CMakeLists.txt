@@ -125,6 +125,6 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 file(GLOB SOURCE_MAIN "${CMAKE_SOURCE_DIR}/*.cpp")
-add_executable(${PROJECT_NAME} ${SOURCE_MAIN})
+add_executable(${PROJECT_NAME} ${SOURCE_MAIN} thread_pool/ThreadPool.h thread_pool/ThreadPool.cpp boost_load_so/Library.h boost_load_so/Library.cpp)
 
 
