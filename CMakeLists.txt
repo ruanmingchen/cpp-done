@@ -34,7 +34,7 @@ if(NOT CMAKE_BUILD_TYPE OR "${CMAKE_BUILD_TYPE}" MATCHES "None" OR "${CMAKE_BUIL
 else()
     # 校验
     if("${CMAKE_BUILD_TYPE}" MATCHES "Release" OR "${CMAKE_BUILD_TYPE}" MATCHES "RelWithDebInfo" OR "${CMAKE_BUILD_TYPE}" MATCHES "MinSizeRel"
-            OR "${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+        OR "${CMAKE_BUILD_TYPE}" MATCHES "Debug")
         set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
         message("----set CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
     else()
@@ -86,10 +86,10 @@ if(MSVC)
         endif()
     endforeach()
 
-    # 增加宏定义
-    # add_definitions(-DTEST)
-    # add_definitions(-DUNICODE)
-    # add_definitions(-DWIN32_LEAN_AND_MEAN)
+# 增加宏定义
+# add_definitions(-DTEST)
+# add_definitions(-DUNICODE)
+# add_definitions(-DWIN32_LEAN_AND_MEAN)
 else()
     # 设置c++编辑器
     set(CMAKAE_CXX_COMPILER g++)
@@ -125,6 +125,4 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 file(GLOB SOURCE_MAIN "${CMAKE_SOURCE_DIR}/*.cpp")
-add_executable(${PROJECT_NAME} ${SOURCE_MAIN} thread_pool/ThreadPool.h thread_pool/ThreadPool.cpp boost_load_so/Library.h boost_load_so/Library.cpp concurrent_map/ConcurrentMapt.h)
-
-
+add_executable(${PROJECT_NAME} prohibit_repeated_starts/PidFile.h)

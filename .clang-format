@@ -1,0 +1,117 @@
+# 配置参考 http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+# 基于那个配置文件
+BasedOnStyle: Google
+# 访问说明符的偏移(public private)
+AccessModifierOffset: -4
+# 括号之后,水平对齐参数: Align DontAlign AlwaysBreak
+AlignAfterOpenBracket: Align
+# 连续的赋值时,对齐所有的等号
+AlignConsecutiveAssignments: false
+# 连续声明时，对齐所有声明的变量名
+AlignConsecutiveDeclarations: false
+# 左对齐换行(使用反斜杠换行)的反斜杠
+AlignEscapedNewlinesLeft: true
+# 水平对齐二元和三元表达式的操作数
+AlignOperands: true
+# 对齐连续的尾随的注释
+AlignTrailingComments: true
+# 允许函数声明的所有参数在放在下一行
+AllowAllParametersOfDeclarationOnNextLine: true
+# 允许短的块放在同一行
+AllowShortBlocksOnASingleLine: Empty
+# 允许短的case标签放在同一行
+AllowShortCaseLabelsOnASingleLine: false
+# 是否允许短if单行 If true, if (a) return; 可以放到同一行
+AllowShortIfStatementsOnASingleLine: Never
+# 允许短的循环保持在同一行
+AllowShortLoopsOnASingleLine: false
+# 总是在定义返回类型后换行(deprecated)
+AlwaysBreakAfterDefinitionReturnType: None
+# 每行字符的限制，0表示没有限制
+ColumnLimit: 120
+# 描述具有特殊意义的注释的正则表达式，它不应该被分割为多行或以其它方式改变
+CommentPragmas: '^ IWYU pragma:'
+# 语言: None Cpp Java Objc Protp
+Language: Cpp
+#指针的*的挨着哪边
+DerivePointerAlignment: false
+PointerAlignment: Left
+#缩进宽度
+IndentWidth: 4
+# 连续的空行保留几行
+MaxEmptyLinesToKeep: 1
+# 在 @property 后面添加空格, \@property (readonly) 而不是 \@property(readonly).
+ObjCSpaceAfterProperty: true
+# OC block 后面的缩进
+ObjCBlockIndentWidth: 4
+# 是否允许短方法单行
+AllowShortFunctionsOnASingleLine: InlineOnly
+# 中括号两边空格 []
+SpacesInSquareBrackets: false
+# 小括号两边添加空格
+SpacesInParentheses : false
+# 等号两边的空格
+SpaceBeforeAssignmentOperators: true
+# 容器类的空格 例如 OC的字典
+SpacesInContainerLiterals: true
+# 缩进
+IndentWrappedFunctionNames: true
+#在block从空行开始
+KeepEmptyLinesAtTheStartOfBlocks: false
+# 在构造函数初始化时按逗号断行，并以冒号对齐
+BreakConstructorInitializersBeforeComma: true
+# 括号后添加空格
+SpaceAfterCStyleCast: false
+# 允许排序#include, 造成编译错误
+# SortIncludes: true
+# 缩进case 标签
+IndentCaseLabels: false
+#tab键盘的宽度
+TabWidth: 4
+UseTab: Never
+
+# 对齐连续的C / C ++预处理程序宏
+AlignConsecutiveMacros: true
+# 定义在哪种情况下在括号前放置空格
+SpaceBeforeParens: ControlStatements
+# 解析和格式化与此标准兼容的C ++结构
+Standard: c++11
+# 如果true将空格插入{}
+SpaceInEmptyBlock: true
+# 如果为false，则将在继承冒号之前删除空格
+SpaceBeforeInheritanceColon: true
+
+AlignEscapedNewlines: DontAlign
+
+BreakBeforeBraces: Linux
+
+# 构造函数使用的初始化器样式
+BreakConstructorInitializers: AfterColon
+# 如果为true，则将括号列表的格式设置为最适合C ++ 11括号列表的格式。
+Cpp11BracedListStyle: true
+# 如果为true，则clang-format添加缺少的名称空间结尾注释并修复无效的现有注释。
+FixNamespaceComments: true
+
+# 排序头文件
+SortIncludes: true
+
+BreakBeforeBinaryOperators: NonAssignment
+
+AllowAllConstructorInitializersOnNextLine: false
+BinPackParameters: false
+
+IncludeBlocks:   Regroup
+IncludeCategories:
+  - Regex:           '^<ext/.*\.h>'
+    Priority:        2
+    SortPriority:    0
+  - Regex:           '^<.*\.h>'
+    Priority:        1
+    SortPriority:    0
+  - Regex:           '^<.*'
+    Priority:        2
+    SortPriority:    0
+  - Regex:           '.*'
+    Priority:        3
+    SortPriority:    0

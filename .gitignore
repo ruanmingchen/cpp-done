@@ -1,0 +1,6 @@
+# Agent私有设置
+output/
+third_party/
+.vscode/
+build/
+.idea
