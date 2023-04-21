@@ -32,13 +32,11 @@ class AsynModuleManager
     };
 
 public:
-    /**
-     * @brief 启动异步模块管理器
-     *
-     * @param workerThreadCount 工作线程数量
-     * @return true 启动成功
-     * @return false 启动失败
-     */
+    AsynModuleManager() : workguard_(boost::asio::make_work_guard(io_context_)), check_delayed_event_timer_(io_context_)
+    {
+        stoped_ = true;
+    }
+
     bool Start(int workerThreadCount)
     {
         if (!stoped_)
@@ -73,7 +71,6 @@ public:
                 std::unique_lock<std::mutex> lock(cv_lock_);
                 cv_.wait_for(lock, std::chrono::seconds(WATCHDOG_CHECK_INTERVAL));
                 auto now_time = std::chrono::steady_clock::now();
-                /* 一个检测周期内，系统cpu利用率大于80时，放弃本次死锁检测 */
                 if (SystemCpuLoad() > SYS_CPULOAD_THRESHOLD) {
                     thread_active_tablock_.lock();
                     for (auto it : thread_active_timetab_) {
@@ -108,10 +105,6 @@ public:
         startlock_.unlock();
         return true;
     }
-    /**
-     * @brief 停止异步模块管理器
-     *
-     */
     void Stop()
     {
         if (stoped_)
@@ -133,30 +126,16 @@ public:
         startlock_.unlock();
         // log("Asynmodule stop succ!!!");
     }
-    /**
-     * @brief 获取io_context
-     *
-     * @return boost::asio::io_context&
-     */
+
     boost::asio::io_context& get_context() { return io_context_; }
-    /**
-     * @brief 发送事件
-     *
-     * @tparam FunctionT
-     * @param funcTask
-     */
+
     template <class FunctionT>
     void PostEvent(FunctionT funcTask)
     {
         if (!stoped_)
             boost::asio::post(io_context_, funcTask);
     }
-    /**
-     * @brief 发送延迟事件
-     *
-     * @param delayed_second 延迟时间
-     * @param funcTask
-     */
+
     void PostDelayedEvent(unsigned int delayed_second, std::function<void(void)> funcTask)
     {
         if (!stoped_) {
@@ -166,30 +145,14 @@ public:
             delay_eventtab_[timeout].push_back(funcTask);
         }
     }
-    /**
-     * @brief 清空延迟事件
-     *
-     */
+
     void ClearDelayedEvent()
     {
         std::lock_guard<std::mutex> lock(delay_event_lock_);
         delay_eventtab_.clear();
     }
-    /**
-     * @brief 构造函数
-     *
-     */
-    AsynModuleManager() : workguard_(boost::asio::make_work_guard(io_context_)), check_delayed_event_timer_(io_context_)
-    {
-        stoped_ = true;
-    }
 
 private:
-    /**
-     * @brief 检查延迟事件回调函数
-     *
-     * @param result
-     */
     void CheckDelayedEventCallback(boost::system::error_code result)
     {
         if (result) {
@@ -217,11 +180,7 @@ private:
         check_delayed_event_timer_.async_wait(
             [this](boost::system::error_code result) { CheckDelayedEventCallback(result); });
     }
-    /**
-     * @brief 获取系统cpu利用率
-     *
-     * @return float
-     */
+
     float SystemCpuLoad()
     {
         float cpu_load;
