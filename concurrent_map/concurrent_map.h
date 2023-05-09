@@ -11,14 +11,15 @@
 #include <map>
 #include <vector>
 
+
 #include "boost/thread/locks.hpp"
 #include "boost/thread/shared_mutex.hpp"
 
 template <class KEY_T>
-class MapComp
+class CompInterface
 {
 public:
-    bool operator()(KEY_T key1, KEY_T key2) { return (key1 == key2); }
+    virtual bool operator()(KEY_T key1, KEY_T key2) = 0;
 };
 
 template <class KEY_T, class VALUE_T, class Compare>

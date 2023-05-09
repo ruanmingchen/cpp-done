@@ -5,32 +5,87 @@
 #ifndef CPP_DONE_THREADPOOL_H
 #define CPP_DONE_THREADPOOL_H
 
-#include <vector>
-#include <queue>
-#include <memory>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
-#include <future>
 #include <functional>
+#include <future>
+#include <memory>
+#include <mutex>
+#include <queue>
 #include <stdexcept>
 #include <string>
+#include <thread>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 
-class ThreadPool {
+class Work
+{
 public:
-    explicit ThreadPool(std::size_t num);
-    ~ThreadPool();
+    enum class WorkStatusType { kNotUsed = 0, kStarting, kInvalid };
 
-    template<typename F, class... Args>
-    auto enqueue(F && f, Args &&... args)->std::future<typename std::result_of<F(Args...)>::type>;
+public:
+    Work(std::function<void()>&& cb);
+    ~Work();
+
+    void Doing();
+
+    WorkStatusType work_status() const;
+    void set_work_status(WorkStatusType status);
 
 private:
-    std::vector<std::thread> workers_;
-    std::queue<std::function<void()>> tasks_;
-    std::mutex mutex_;
-    std::condition_variable cond_;
-    std::atomic_bool stop_;
+    std::function<void()> cb_func_;
+    WorkStatusType status_;
 };
 
+class WorkThread
+{
+public:
+    WorkThread() = default;
+    ~WorkThread();
 
-#endif //CPP_DONE_THREADPOOL_H
+    bool StartWork();
+    void StopWork();
+    void PushWork(const std::shared_ptr<Work>& ptr);
+
+private:
+    std::atomic_bool stoped_;
+    std::thread worker_;
+
+private:
+    std::mutex works_mtx_;
+    std::condition_variable works_cv_;
+    std::queue<std::shared_ptr<Work>> works_;
+};
+
+class ThreadPool
+{
+public:
+    ThreadPool();
+    ~ThreadPool();
+
+    void StartPool(std::size_t num = std::thread::hardware_concurrency());
+    void StopPool();
+
+    template <typename F, class... Args>
+    auto PostWork(F&& f, Args&&... args) -> std::tuple<std::size_t, std::future<decltype(F(args...))>>;
+
+    void DeleteWork(std::size_t id);
+
+private:
+    void MakeWorkThread(std::size_t num);
+    std::size_t Rand(std::size_t min = 1UL, std::size_t max = 999999UL);
+
+private:
+    uint32_t offset_;
+    uint32_t threads_size_;
+
+    bool stop_;
+
+    std::mutex workers_mtx_;
+    std::vector<std::shared_ptr<WorkThread>> workers_;
+
+    std::mutex works_mtx_;
+    std::unordered_map<std::size_t, std::shared_ptr<Work>> name_works_;
+};
+
+#endif  // CPP_DONE_THREADPOOL_H

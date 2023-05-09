@@ -1,23 +1,9 @@
 # Cmake最低版本要求
 cmake_minimum_required(VERSION 3.9.0)
 
-# 设置编译进程名字
-set(project_name a.out)
-
-project(${project_name})
-
-# 设置版本号 1.0.1
-set(VERSION_MAJOR 1)
-set(VERSION_MINOR 0)
-set(VERSION_PATCH 1)
-
-# 参数设置
-# set(BUILD_ONLY "" CACHE STRING "A semi-colon delimited list of the projects to build")
-# set(CPP_STANDARD "11" CACHE STRING "Flag to upgrade the C++ standard used. The default is 11. The minimum is 11.")
-# set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Release build by default.")
-
-# 取消第三方库头文件进行依赖检查,liunx加快编译速度
 set(CMAKE_DEPENDS_IN_PROJECT_ONLY ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/build/test_bin")
 
 # 输出编译器的类型
 if(CMAKE_CONFIGURATION_TYPES)
@@ -85,11 +71,6 @@ if(MSVC)
             string(REPLACE "/MT" "${MSVC_RUNTIME_LIBRARY_CONFIG}" ${flag_var} "${${flag_var}}")
         endif()
     endforeach()
-
-# 增加宏定义
-# add_definitions(-DTEST)
-# add_definitions(-DUNICODE)
-# add_definitions(-DWIN32_LEAN_AND_MEAN)
 else()
     # 设置c++编辑器
     set(CMAKAE_CXX_COMPILER g++)
@@ -123,6 +104,5 @@ else()
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
-file(GLOB SOURCE_MAIN "${CMAKE_SOURCE_DIR}/*.cpp")
-add_executable(${PROJECT_NAME} prohibit_repeated_starts/PidFile.h)
+
+add_subdirectory(concurrent_map)
