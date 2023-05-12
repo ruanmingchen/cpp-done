@@ -9,49 +9,39 @@
 // kill(pid, 0) 进行检测．
 
 // 4. 在收到SIGINT和SIGTERM时，先删除/tmp/my_pid_file，再退出．
-#include <errno.h>
 #include <fcntl.h>
-#include <signal.h>
-#include <string.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cerrno>
+#include <csignal>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 
-#define kMyPidFile    "/tmp/my_pid_file"
-#define kBufLenForPid 64
-
-class PidFileManager
+class SingleInstanceProcess
 {
 public:
-    PidFileManager() = default;
-    ~PidFileManager();
+    SingleInstanceProcess() = default;
+    ~SingleInstanceProcess();
 
     void CheckOnly();
-    void Run();
+    [[noreturn]] static void Run();
 
     static void SigHandler(int sig);
 
 private:
-    void RemovePidFile();
+    static void RemovePidFile();
     void CreatePidFile();
     void CheckPidFile();
     void WritePidIntoFd();
 
 private:
-    pid_t pid_;
-    int fd_;
-};
+    static constexpr char *kMyPidFile = "/tmp/my_pid_file";
+    static constexpr int kBufLenForPid = 64;
 
-int main()
-{
-    PidFileManager pid_file_manager;
-    pid_file_manager.CheckOnly();
-    signal(SIGINT, PidFileManager::SigHandler);
-    signal(SIGTERM, PidFileManager::SigHandler);
-    pid_file_manager.Run();
-    return 0;
-}
+    pid_t pid_{};
+    int fd_{};
+};

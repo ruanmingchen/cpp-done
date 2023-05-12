@@ -5,15 +5,12 @@
 #ifndef A_OUT_CONCURRENTMAPT_H
 #define A_OUT_CONCURRENTMAPT_H
 
-
 #include <atomic>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include <iostream>
 #include <map>
 #include <vector>
-
-
-#include "boost/thread/locks.hpp"
-#include "boost/thread/shared_mutex.hpp"
 
 template <class KEY_T>
 class CompInterface
@@ -191,7 +188,9 @@ template <typename KEY_T, typename VALUE_T, typename Compare, typename Hash = st
 class ConcurrentMap
 {
 public:
-    explicit ConcurrentMap(uint64_t bucket_nums = 61, Hash const& hasher = Hash()) : buckets_(bucket_nums), hasher_(hasher)
+    explicit ConcurrentMap(uint64_t bucket_nums = 61, Hash const& hasher = Hash()) :
+        buckets_(bucket_nums),
+        hasher_(hasher)
     {
         for (uint64_t i = 0; i < bucket_nums; ++i) {
             buckets_[i].reset(new ConcurrentBucket<KEY_T, VALUE_T, Compare>);
@@ -218,7 +217,6 @@ public:
         for (size_t bucket_index = 0; bucket_index < buckets_.size(); ++bucket_index) {
             buckets_[bucket_index]->GetAllKey(list);
         }
-
     }
 
     void UpdateKeyBatch(std::vector<std::pair<KEY_T, VALUE_T>>& list)
@@ -296,5 +294,4 @@ private:
     Hash hasher_;
 };
 
-
-#endif //A_OUT_CONCURRENTMAPT_H
+#endif  // A_OUT_CONCURRENTMAPT_H

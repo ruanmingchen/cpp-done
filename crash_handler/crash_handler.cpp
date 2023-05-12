@@ -1,18 +1,3 @@
-/***********************************************
- *
- * Copyright (C) 2019-2029
- * ANXIN CORPORATION Technology Company.
- * All Rights Reserved.
- *
- * Products  :  AX3.0
- * Author    :
- * Date      :
- *
- * Abstract  :
- *
- * History   :
- *
- *************************************************/
 #include "crash_handler.h"
 
 #include <fcntl.h>
@@ -438,7 +423,7 @@ int CrashHandler::v_popen(const char* cmd, const char* type)
                     close(pfd[1]);
                 }
             } else {
-                close(pfd[1]);  // close write pipe
+                close(pfd[1]);                   // close write pipe
                 if (pfd[0] != STDIN_FILENO) {
                     dup2(pfd[0], STDIN_FILENO);  // 将标准输入重定向到管道读端
                     close(pfd[0]);

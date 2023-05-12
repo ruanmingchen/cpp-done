@@ -15,38 +15,32 @@
 
 using namespace std;
 
-#define THREAD_TIMEOUT_TIME     (60 * 30)  // 30min
-#define WATCHDOG_CHECK_INTERVAL (60)
-#define SYS_CPULOAD_THRESHOLD   80
-
-class Timer
+class TimerTaskQueue
 {
     using DelayedEventTab = std::map<std::chrono::steady_clock::time_point, std::list<std::function<void(void)>>>;
-    using ThreadSptr = std::shared_ptr<std::thread>;
-    using Executor_Type = boost::asio::io_service::executor_type;
+    using Executor = boost::asio::io_service::executor_type;
 
     struct thread_info {
-        long tid;
+        long tid{};
         std::chrono::steady_clock::time_point time;
     };
 
 public:
-    Timer();
-    ~Timer() = default;
+    TimerTaskQueue();
+    ~TimerTaskQueue() = default;
 
-    void Start(int workerThreadCount);
-
+    void Start(int thread_num = 1);
     void Stop();
 
     template <class FunctionT>
     void PostEvent(FunctionT funcTask)
     {
-        if (!stoped_){
+        if (!stoped_) {
             boost::asio::post(io_context_, funcTask);
         }
     }
 
-    void PostDelayedEvent(unsigned int delayed_second, std::function<void(void)> funcTask);
+    void PostDelayedEvent(unsigned int delayed_second, const std::function<void(void)>& funcTask);
 
     void ClearDelayedEvent();
 
@@ -54,19 +48,18 @@ private:
     void CheckDelayedEventCallback(boost::system::error_code result);
 
 private:
-    std::mutex startlock_;
-    bool stoped_;
+    const int kSeconds = 60;
 
-    std::mutex cv_lock_;
-    std::condition_variable cv_;
+    std::mutex startlock;
+    bool stoped_;
 
     std::mutex thread_active_tablock_;
     std::map<std::thread::id, thread_info> thread_active_timetab_;
 
-    std::vector<ThreadSptr> worker_threads_;
+    std::vector<std::shared_ptr<std::thread>> worker_threads_;
     boost::asio::io_context io_context_;
 
-    boost::asio::executor_work_guard<Executor_Type> workguard_;
+    boost::asio::executor_work_guard<Executor> workguard_;
 
     std::mutex delay_event_lock_;
     DelayedEventTab delay_eventtab_;

@@ -1,11 +1,11 @@
 #include "single_instance_process.h"
 
-PidFileManager::~PidFileManager()
+SingleInstanceProcess::~SingleInstanceProcess()
 {
     RemovePidFile();
 }
 
-void PidFileManager::CheckOnly()
+void SingleInstanceProcess::CheckOnly()
 {
     try {
         pid_ = getpid();
@@ -14,7 +14,7 @@ void PidFileManager::CheckOnly()
             if (errno == ENOENT) {
                 CreatePidFile();
             } else {
-                perror("open " kMyPidFile " fail\n");
+                perror("open pid fail\n");
                 exit(-1);
             }
         } else {
@@ -24,14 +24,14 @@ void PidFileManager::CheckOnly()
     }
 }
 
-void PidFileManager::Run()
+[[noreturn]] void SingleInstanceProcess::Run()
 {
     while (true) {
         sleep(3);
     }
 }
 
-void PidFileManager::RemovePidFile()
+void SingleInstanceProcess::RemovePidFile()
 {
     try {
         std::remove(kMyPidFile);
@@ -40,17 +40,17 @@ void PidFileManager::RemovePidFile()
     }
 }
 
-void PidFileManager::CreatePidFile()
+void SingleInstanceProcess::CreatePidFile()
 {
     fd_ = open(kMyPidFile, O_WRONLY | O_CREAT | O_EXCL, 0666);
     if (fd_ == -1) {
-        perror("Create " kMyPidFile " fail\n");
+        perror("Create pid fail\n");
         exit(-1);
     }
 
     int ret = flock(fd_, LOCK_EX);
     if (ret == -1) {
-        perror("flock " kMyPidFile " fail\n");
+        perror("flock pid fail\n");
         close(fd_);
         exit(-1);
     }
@@ -61,11 +61,11 @@ void PidFileManager::CreatePidFile()
     close(fd_);
 }
 
-void PidFileManager::CheckPidFile()
+void SingleInstanceProcess::CheckPidFile()
 {
     int ret = flock(fd_, LOCK_EX);
     if (ret == -1) {
-        perror("flock " kMyPidFile " fail\n");
+        perror("flock pid fail\n");
         close(fd_);
         exit(-1);
     }
@@ -73,7 +73,7 @@ void PidFileManager::CheckPidFile()
     char buf[kBufLenForPid] = {0};
     ret = read(fd_, buf, sizeof(buf) - 1);
     if (ret < 0) {
-        perror("read from " kMyPidFile " fail\n");
+        perror("read from pid fail\n");
         exit(-1);
     } else if (ret > 0) {
         pid_t old_pid = atol(buf);
@@ -97,25 +97,25 @@ void PidFileManager::CheckPidFile()
     close(fd_);
 }
 
-void PidFileManager::WritePidIntoFd()
+void SingleInstanceProcess::WritePidIntoFd()
 {
     char buf[kBufLenForPid] = {0};
     sprintf(buf, "%d", pid_);
     int ret = write(fd_, buf, strlen(buf));
     if (ret <= 0) {
         if (ret == -1) {
-            perror("Write " kMyPidFile " fail\n");
+            perror("Write pid fail\n");
         }
         exit(-1);
     } else {
-        std::cout << "Create " kMyPidFile " ok, pid=" << pid_ << std::endl;
+        std::cout << "Create pid file ok, pid=" << pid_ << std::endl;
     }
 }
 
-void PidFileManager::SigHandler(int sig)
+void SingleInstanceProcess::SigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) {
-        remove(kMyPidFile);
+        std::remove(kMyPidFile);
     }
     _exit(0);
 }

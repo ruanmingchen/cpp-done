@@ -45,7 +45,7 @@ public:
     };
 
     template <class PTR_T, class FUNC_T>
-    PTR_T GetProcAddress(boost::string_view func_name, std::string& err)
+    PTR_T GetFunctionPoint(boost::string_view func_name, std::string& err)
     {
         err.clear();
         try {
